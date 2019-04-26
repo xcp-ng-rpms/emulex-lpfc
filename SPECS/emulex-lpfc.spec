@@ -8,10 +8,15 @@
 
 Summary: %{vendor_name} %{driver_name} device drivers
 Name: %{vendor_label}-%{driver_name}
-Version: 11.1.210.1
+Version: 12.0.0.10
 Release: 1%{?dist}
 License: GPL
-Source: https://code.citrite.net/rest/archive/latest/projects/XS/repos/driver-%{name}/archive?at=%{version}&format=tgz&prefix=driver-%{name}-%{version}#/%{name}-%{version}.tar.gz
+
+Source0: https://code.citrite.net/rest/archive/latest/projects/XS/repos/driver-emulex-lpfc/archive?at=12.0.0.10&format=tgz&prefix=driver-emulex-lpfc-12.0.0.10#/emulex-lpfc-12.0.0.10.tar.gz
+
+
+Provides: gitsha(https://code.citrite.net/rest/archive/latest/projects/XS/repos/driver-emulex-lpfc/archive?at=12.0.0.10&format=tgz&prefix=driver-emulex-lpfc-12.0.0.10#/emulex-lpfc-12.0.0.10.tar.gz) = fe7e1b1a21a85e6bdd91e125ef124ccf56efc85c
+
 
 BuildRequires: kernel-devel
 Provides: vendor-driver
@@ -53,3 +58,8 @@ find %{buildroot}/lib/modules/%{kernel_version} -name "*.ko" -type f | xargs chm
 /lib/modules/%{kernel_version}/*/*.ko
 
 %changelog
+* Tue Jan 15 2019 Deli Zhang <deli.zhang@citrix.com> - 12.0.0.10-1
+- CP-30421: Upgrade lpfc driver to version 12.0.0.10
+
+* Thu Nov 29 2018 Deli Zhang <deli.zhang@citrix.com> - 12.0.0.8-1
+- CP-29709: Upgrade lpfc driver to version 12.0.0.8
