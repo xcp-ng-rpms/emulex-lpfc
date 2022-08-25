@@ -1,3 +1,8 @@
+%global package_speccommit 041a68136e9c8f1b40bec9da7ecaad9683d3829a
+%global usver 12.0.0.10
+%global xsver 3
+%global xsrel %{xsver}%{?xscount}%{?xshash}
+%global package_srccommit 12.0.0.10
 %define vendor_name Emulex
 %define vendor_label emulex
 %define driver_name lpfc
@@ -6,19 +11,22 @@
 %define module_dir updates
 %endif
 
+## kernel_version will be set during build because then kernel-devel
+## package installs an RPM macro which sets it. This check keeps
+## rpmlint happy.
+%if %undefined kernel_version
+%define kernel_version dummy
+%endif
+
 Summary: %{vendor_name} %{driver_name} device drivers
 Name: %{vendor_label}-%{driver_name}
 Version: 12.0.0.10
-Release: 1%{?dist}
+Release: %{?xsrel}%{?dist}
 License: GPL
-
-Source0: https://code.citrite.net/rest/archive/latest/projects/XS/repos/driver-emulex-lpfc/archive?at=12.0.0.10&format=tgz&prefix=driver-emulex-lpfc-12.0.0.10#/emulex-lpfc-12.0.0.10.tar.gz
-
-
-Provides: gitsha(https://code.citrite.net/rest/archive/latest/projects/XS/repos/driver-emulex-lpfc/archive?at=12.0.0.10&format=tgz&prefix=driver-emulex-lpfc-12.0.0.10#/emulex-lpfc-12.0.0.10.tar.gz) = fe7e1b1a21a85e6bdd91e125ef124ccf56efc85c
-
+Source0: emulex-lpfc-12.0.0.10.tar.gz
 
 BuildRequires: kernel-devel
+%{?_cov_buildrequires}
 Provides: vendor-driver
 Requires: kernel-uname-r = %{kernel_version}
 Requires(post): /usr/sbin/depmod
@@ -29,18 +37,21 @@ Requires(postun): /usr/sbin/depmod
 version %{kernel_version}.
 
 %prep
-%autosetup -p1 -n driver-%{name}-%{version}
+%autosetup -p1 -n %{name}-%{version}
+%{?_cov_prepare}
 
 %build
-%{?cov_wrap} %{make_build} -C /lib/modules/%{kernel_version}/build M=$(pwd) KSRC=/lib/modules/%{kernel_version}/build modules
+%{?_cov_wrap} %{make_build} -C /lib/modules/%{kernel_version}/build M=$(pwd) KSRC=/lib/modules/%{kernel_version}/build modules
 
 %install
 %{__install} -d %{buildroot}%{_sysconfdir}/modprobe.d
 %{__install} %{driver_name}.conf %{buildroot}%{_sysconfdir}/modprobe.d
-%{?cov_wrap} %{__make} %{?_smp_mflags} -C /lib/modules/%{kernel_version}/build M=$(pwd) INSTALL_MOD_PATH=%{buildroot} INSTALL_MOD_DIR=%{module_dir} DEPMOD=/bin/true modules_install
+%{?_cov_wrap} %{__make} %{?_smp_mflags} -C /lib/modules/%{kernel_version}/build M=$(pwd) INSTALL_MOD_PATH=%{buildroot} INSTALL_MOD_DIR=%{module_dir} DEPMOD=/bin/true modules_install
 
 # mark modules executable so that strip-to-file can strip them
 find %{buildroot}/lib/modules/%{kernel_version} -name "*.ko" -type f | xargs chmod u+x
+
+%{?_cov_install}
 
 %post
 /sbin/depmod %{kernel_version}
@@ -57,7 +68,15 @@ find %{buildroot}/lib/modules/%{kernel_version} -name "*.ko" -type f | xargs chm
 %config(noreplace) %{_sysconfdir}/modprobe.d/*.conf
 /lib/modules/%{kernel_version}/*/*.ko
 
+%{?_cov_results_package}
+
 %changelog
+* Mon Feb 14 2022 Ross Lagerwall <ross.lagerwall@citrix.com> - 12.0.0.10-3
+- CP-38416: Enable static analysis
+
+* Tue Dec 01 2020 Ross Lagerwall <ross.lagerwall@citrix.com> - 12.0.0.10-2
+- CP-35517: Silence an RPM warning and fix the build
+
 * Tue Jan 15 2019 Deli Zhang <deli.zhang@citrix.com> - 12.0.0.10-1
 - CP-30421: Upgrade lpfc driver to version 12.0.0.10
 
