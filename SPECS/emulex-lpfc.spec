@@ -1,8 +1,8 @@
-%global package_speccommit 041a68136e9c8f1b40bec9da7ecaad9683d3829a
-%global usver 12.0.0.10
-%global xsver 3
+%global package_speccommit 738ff9c8460ba54dc474f8555fb65bc08006860f
+%global usver 14.4.393.31
+%global xsver 1
 %global xsrel %{xsver}%{?xscount}%{?xshash}
-%global package_srccommit 12.0.0.10
+%global package_srccommit 14.4.393.31
 %define vendor_name Emulex
 %define vendor_label emulex
 %define driver_name lpfc
@@ -20,10 +20,10 @@
 
 Summary: %{vendor_name} %{driver_name} device drivers
 Name: %{vendor_label}-%{driver_name}
-Version: 12.0.0.10
+Version: 14.4.393.31
 Release: %{?xsrel}%{?dist}
 License: GPL
-Source0: emulex-lpfc-12.0.0.10.tar.gz
+Source0: emulex-lpfc-14.4.393.31.tar.gz
 
 BuildRequires: gcc
 BuildRequires: kernel-devel
@@ -45,8 +45,6 @@ version %{kernel_version}.
 %{?_cov_wrap} %{make_build} -C /lib/modules/%{kernel_version}/build M=$(pwd) KSRC=/lib/modules/%{kernel_version}/build modules
 
 %install
-%{__install} -d %{buildroot}%{_sysconfdir}/modprobe.d
-%{__install} %{driver_name}.conf %{buildroot}%{_sysconfdir}/modprobe.d
 %{?_cov_wrap} %{__make} %{?_smp_mflags} -C /lib/modules/%{kernel_version}/build M=$(pwd) INSTALL_MOD_PATH=%{buildroot} INSTALL_MOD_DIR=%{module_dir} DEPMOD=/bin/true modules_install
 
 # mark modules executable so that strip-to-file can strip them
@@ -66,12 +64,14 @@ find %{buildroot}/lib/modules/%{kernel_version} -name "*.ko" -type f | xargs chm
 %{regenerate_initrd_posttrans}
 
 %files
-%config(noreplace) %{_sysconfdir}/modprobe.d/*.conf
 /lib/modules/%{kernel_version}/*/*.ko
 
 %{?_cov_results_package}
 
 %changelog
+* Fri May 02 2025 Ross Lagerwall <ross.lagerwall@citrix.com> - 14.4.393.31-1
+- CA-410184: Update to 14.4.393.31
+
 * Mon Feb 14 2022 Ross Lagerwall <ross.lagerwall@citrix.com> - 12.0.0.10-3
 - CP-38416: Enable static analysis
 
