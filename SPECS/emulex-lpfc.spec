@@ -1,8 +1,8 @@
-%global package_speccommit 041a68136e9c8f1b40bec9da7ecaad9683d3829a
-%global usver 12.0.0.10
-%global xsver 3
+%global package_speccommit 738ff9c8460ba54dc474f8555fb65bc08006860f
+%global usver 14.4.393.31
+%global xsver 1
 %global xsrel %{xsver}%{?xscount}%{?xshash}
-%global package_srccommit 12.0.0.10
+%global package_srccommit 14.4.393.31
 %define vendor_name Emulex
 %define vendor_label emulex
 %define driver_name lpfc
@@ -20,12 +20,21 @@
 
 Summary: %{vendor_name} %{driver_name} device drivers
 Name: %{vendor_label}-%{driver_name}
-Version: 12.0.0.10
+Version: 14.4.393.31
 Release: %{?xsrel}%{?dist}
 License: GPL
 Source0: emulex-lpfc-12.0.0.10.tar.gz
+Source1: emulex-lpfc-14.4.393.31.tar.gz
 
-Patch1001: 0001-emulex-lpfc-remove-devices-supported-by-the-14.x-ver.patch
+# XCP-ng
+# 12.x patches
+Patch1201: 0001-emulex-lpfc-remove-devices-supported-by-the-14.x-ver.patch
+Patch1202: 0001-emulex-lpfc-refuse-to-load-when-we-detect-the-14.x-v.patch
+
+# 14.x patches
+Patch1401: 0001-emulex-lpfc-rename-lpfc.ko-driver-to-lpfc14.ko.patch
+Patch1402: 0001-emulex-lpfc14-refuse-to-load-when-we-detect-the-12.x.patch
+
 
 BuildRequires: gcc
 BuildRequires: kernel-devel
@@ -40,20 +49,45 @@ Requires(postun): /usr/sbin/depmod
 version %{kernel_version}.
 
 %prep
-tar xf %{SOURCE0}
 
-cd %{name}-%{version}
-%patch -P1001
+mkdir 12.x
+tar xf %{SOURCE0} --strip-components=1 -C 12.x/
+
+pushd 12.x
+%patch -p1 -P1201
+%patch -p1 -P1202
+popd
+
+mkdir 14.x
+tar xf %{SOURCE1} --strip-components=1 -C 14.x/
+
+pushd 14.x
+%patch -p1 -P1401
+%patch -p1 -P1402
+popd
 
 %{?_cov_prepare}
 
 %build
-%{?_cov_wrap} %{make_build} -C /lib/modules/%{kernel_version}/build M=$(pwd) KSRC=/lib/modules/%{kernel_version}/build modules
+
+for version in 12.x 14.x; do
+    (
+	cd $version
+	%{?_cov_wrap} %{make_build} -C /lib/modules/%{kernel_version}/build M=$(pwd) KSRC=/lib/modules/%{kernel_version}/build modules
+    )
+done
 
 %install
+
 %{__install} -d %{buildroot}%{_sysconfdir}/modprobe.d
-%{__install} %{driver_name}.conf %{buildroot}%{_sysconfdir}/modprobe.d
-%{?_cov_wrap} %{__make} %{?_smp_mflags} -C /lib/modules/%{kernel_version}/build M=$(pwd) INSTALL_MOD_PATH=%{buildroot} INSTALL_MOD_DIR=%{module_dir} DEPMOD=/bin/true modules_install
+%{__install} 12.x/%{driver_name}.conf %{buildroot}%{_sysconfdir}/modprobe.d
+
+for version in 12.x 14.x; do
+    (
+	cd $version
+	%{?_cov_wrap} %{__make} %{?_smp_mflags} -C /lib/modules/%{kernel_version}/build M=$(pwd) INSTALL_MOD_PATH=%{buildroot} INSTALL_MOD_DIR=%{module_dir} DEPMOD=/bin/true modules_install
+    )
+done
 
 # mark modules executable so that strip-to-file can strip them
 find %{buildroot}/lib/modules/%{kernel_version} -name "*.ko" -type f | xargs chmod u+x
@@ -79,8 +113,9 @@ find %{buildroot}/lib/modules/%{kernel_version} -name "*.ko" -type f | xargs chm
 
 %changelog
 
-* Thu Jun 25 2026 Quentin Casasnovas <quentin.casasnovas@vates.tech> - 12.0.0.10-4
+* Thu Jun 25 2026 Quentin Casasnovas <quentin.casasnovas@vates.tech> - 14.4.393.31-1
 - Drop support of devices supported by the 14.x branch
+- Add 14.x lpfc driver alongside the 12.x one
 
 ## Reverted back to version 12.0.0-10.3 from 14.4.393.31-1 as version
 ## 14.4.393.31-1 was released as an alt driver

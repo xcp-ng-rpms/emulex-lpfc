@@ -1,0 +1,32 @@
+From 1b9f2310dc4d665743750170ea7b19dca80c87d5 Mon Sep 17 00:00:00 2001
+From: Quentin Casasnovas <quentin.casasnovas@vates.tech>
+Date: Thu, 25 Jun 2026 15:32:01 +0200
+Subject: [PATCH] emulex-lpfc: rename lpfc.ko driver to lpfc14.ko.
+
+This is to allow both 12.x and 14.x series to be installed on the same
+system without conflicting with each other.
+
+Signed-off-by: Quentin Casasnovas <quentin.casasnovas@vates.tech>
+---
+ Makefile | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 8bc516631dec..d11ff6edce41 100644
+--- a/Makefile
++++ b/Makefile
+@@ -274,9 +274,9 @@ grep 'xen' | sed -e 's/.*xen.*/xen/')
+ 
+ EXTRA_CFLAGS += ${BUILD_FLAGS}
+ 
+-obj-$(CONFIG_SCSI_LPFC) := lpfc.o
++obj-$(CONFIG_SCSI_LPFC) := lpfc14.o
+ 
+-lpfc-objs := lpfc_mem.o lpfc_sli.o lpfc_ct.o lpfc_els.o \
++lpfc14-objs := lpfc_mem.o lpfc_sli.o lpfc_ct.o lpfc_els.o \
+ 	lpfc_hbadisc.o	lpfc_init.o lpfc_mbox.o lpfc_nportdisc.o   \
+ 	lpfc_scsi.o lpfc_attr.o lpfc_vport.o lpfc_debugfs.o lpfc_bsg.o \
+ 	lpfc_nvme.o lpfc_nvmet.o lpfc_auth.o lpfc_vmid.o
+-- 
+2.43.0
+
