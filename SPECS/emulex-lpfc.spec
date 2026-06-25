@@ -25,6 +25,8 @@ Release: %{?xsrel}%{?dist}
 License: GPL
 Source0: emulex-lpfc-12.0.0.10.tar.gz
 
+Patch1001: 0001-emulex-lpfc-remove-devices-supported-by-the-14.x-ver.patch
+
 BuildRequires: gcc
 BuildRequires: kernel-devel
 %{?_cov_buildrequires}
@@ -38,7 +40,11 @@ Requires(postun): /usr/sbin/depmod
 version %{kernel_version}.
 
 %prep
-%autosetup -p1 -n %{name}-%{version}
+tar xf %{SOURCE0}
+
+cd %{name}-%{version}
+%patch -P1001
+
 %{?_cov_prepare}
 
 %build
@@ -72,6 +78,10 @@ find %{buildroot}/lib/modules/%{kernel_version} -name "*.ko" -type f | xargs chm
 %{?_cov_results_package}
 
 %changelog
+
+* Thu Jun 25 2026 Quentin Casasnovas <quentin.casasnovas@vates.tech> - 12.0.0.10-4
+- Drop support of devices supported by the 14.x branch
+
 ## Reverted back to version 12.0.0-10.3 from 14.4.393.31-1 as version
 ## 14.4.393.31-1 was released as an alt driver
 * Mon Feb 14 2022 Ross Lagerwall <ross.lagerwall@citrix.com> - 12.0.0.10-3

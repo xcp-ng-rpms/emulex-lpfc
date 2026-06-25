@@ -1,0 +1,37 @@
+From 0520dadc30811d96da398553ef12b599469f8e98 Mon Sep 17 00:00:00 2001
+From: Quentin Casasnovas <quentin.casasnovas@vates.tech>
+Date: Fri, 5 Jun 2026 11:18:02 +0200
+Subject: [PATCH] emulex-lpfc: remove devices supported by the 14.x versions.
+
+We are planning to release two concurrent versions of the emulex-lpfc
+driver to support new hardware with the 14.x branch.  Unfortunately, older
+hardware were desupported with the 14.x branch, so we need to keep the two
+version lines in XCP-ng 8.3 to allow both old/new hardware to be supported.
+
+This commit removes the devices supported by the 14.x series, such that
+there are no conflicts between them.  Note that as part of the change, the
+lpfc kernel module gets renamed to lpfc-legacy.
+
+Signed-off-by: Quentin Casasnovas <quentin.casasnovas@vates.tech>
+---
+ lpfc_ids.h | 4 ----
+ 1 file changed, 4 deletions(-)
+
+diff --git a/lpfc_ids.h b/lpfc_ids.h
+index d48414e295a0..dd41d52df9f4 100644
+--- a/lpfc_ids.h
++++ b/lpfc_ids.h
+@@ -114,10 +114,6 @@ const struct pci_device_id lpfc_id_table[] = {
+ 		PCI_ANY_ID, PCI_ANY_ID, },
+ 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_LANCER_FCOE_VF,
+ 		PCI_ANY_ID, PCI_ANY_ID, },
+-	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_LANCER_G6_FC,
+-		PCI_ANY_ID, PCI_ANY_ID, },
+-	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_LANCER_G7_FC,
+-		PCI_ANY_ID, PCI_ANY_ID, },
+ 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_SKYHAWK,
+ 		PCI_ANY_ID, PCI_ANY_ID, },
+ 	{PCI_VENDOR_ID_EMULEX, PCI_DEVICE_ID_SKYHAWK_VF,
+-- 
+2.43.0
+
