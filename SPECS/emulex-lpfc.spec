@@ -21,7 +21,7 @@
 Summary: %{vendor_name} %{driver_name} device drivers
 Name: %{vendor_label}-%{driver_name}
 Version: 14.4.393.31
-Release: %{?xsrel}%{?dist}
+Release: %{?xsrel}.kernelpreview.1%{?dist}
 License: GPL
 Source0: emulex-lpfc-12.0.0.10.tar.gz
 Source1: emulex-lpfc-14.4.393.31.tar.gz
@@ -37,7 +37,7 @@ Patch1402: 0001-emulex-lpfc14-refuse-to-load-when-we-detect-the-12.x.patch
 
 
 BuildRequires: gcc
-BuildRequires: kernel-devel
+BuildRequires: kernel-devel >= 4.19.325-cip137.8.0.46.16
 %{?_cov_buildrequires}
 Provides: vendor-driver
 Requires: kernel-uname-r = %{kernel_version}
@@ -112,6 +112,8 @@ find %{buildroot}/lib/modules/%{kernel_version} -name "*.ko" -type f | xargs chm
 %{?_cov_results_package}
 
 %changelog
+* Mon Nov 16 2026 Quentin Casasnovas <quentin.casasnovas@vates.tech> - 14.4.393.31-1.kernelpreview.1
+- Rebuild for kernel v4.19.325-cip137
 
 * Thu Jun 25 2026 Quentin Casasnovas <quentin.casasnovas@vates.tech> - 14.4.393.31-1
 - Add 14.x lpfc driver alongside the 12.x one, in order to support both old and new devices
