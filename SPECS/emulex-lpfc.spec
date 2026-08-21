@@ -114,8 +114,10 @@ find %{buildroot}/lib/modules/%{kernel_version} -name "*.ko" -type f | xargs chm
 %changelog
 
 * Thu Jun 25 2026 Quentin Casasnovas <quentin.casasnovas@vates.tech> - 14.4.393.31-1
-- Drop support of devices supported by the 14.x branch
-- Add 14.x lpfc driver alongside the 12.x one
+- Add 14.x lpfc driver alongside the 12.x one, in order to support both old and new devices
+  The new driver is named lpfc14.ko.
+- Drop support of devices supported by the 14.x branch from the 12.x driver (lpfc.ko). 
+
 
 ## Reverted back to version 12.0.0-10.3 from 14.4.393.31-1 as version
 ## 14.4.393.31-1 was released as an alt driver
