@@ -21,7 +21,10 @@
 Summary: %{vendor_name} %{driver_name} device drivers
 Name: %{vendor_label}-%{driver_name}
 Version: 12.0.0.10
-Release: %{?xsrel}%{?dist}
+Release: %{?xsrel}.1%{?dist}
+# Built against new kABI after cip rebase
+Requires: xcpng-kernel-kabi = 4.19.325-cip134+
+
 License: GPL
 Source0: emulex-lpfc-12.0.0.10.tar.gz
 
@@ -72,6 +75,9 @@ find %{buildroot}/lib/modules/%{kernel_version} -name "*.ko" -type f | xargs chm
 %{?_cov_results_package}
 
 %changelog
+* Mon Aug 31 2026 Quentin Casasnovas <quentin.casasnovas@vates.tech> - 12.0.0.10-3.1
+- Rebuild for kernel v4.19.325-cip134
+
 ## Reverted back to version 12.0.0-10.3 from 14.4.393.31-1 as version
 ## 14.4.393.31-1 was released as an alt driver
 * Mon Feb 14 2022 Ross Lagerwall <ross.lagerwall@citrix.com> - 12.0.0.10-3
