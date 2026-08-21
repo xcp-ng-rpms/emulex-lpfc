@@ -1,0 +1,51 @@
+From 488b1c0def21078ee9c0408e86a1bb8cda97e4f1 Mon Sep 17 00:00:00 2001
+From: Quentin Casasnovas <quentin.casasnovas@vates.tech>
+Date: Mon, 20 Jul 2026 09:05:46 +0200
+Subject: [PATCH] emulex-lpfc: refuse to load when we detect the 14.x version
+ is loaded.
+
+Both lpfc and lpfc14 conflicts on paths they register in sysfs (lpfcmgmt)
+and debugfs, so prevent loading both drivers at the same time with a
+user-friendly message.
+
+Signed-off-by: Quentin Casasnovas <quentin.casasnovas@vates.tech>
+---
+ lpfc_init.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
+
+diff --git a/lpfc_init.c b/lpfc_init.c
+index 8a63e5271b6c..6356e1df215c 100644
+--- a/lpfc_init.c
++++ b/lpfc_init.c
+@@ -12846,6 +12846,15 @@ static struct miscdevice lpfc_mgmt_dev = {
+ 	.fops = &lpfc_mgmt_fop,
+ };
+ 
++
++/**
++ * This symbol is checked in the 14.x version of the driver to refuse
++ * loading when/if the 12.x version (this one) is loaded).
++ */
++int lpfc12_loaded;
++EXPORT_SYMBOL_GPL(lpfc12_loaded);
++extern int lpfc14_loaded;
++
+ /**
+  * lpfc_init - lpfc module initialization routine
+  *
+@@ -12866,6 +12875,12 @@ lpfc_init(void)
+ 	printk(LPFC_MODULE_DESC "\n");
+ 	printk(LPFC_COPYRIGHT "\n");
+ 
++	if (symbol_get(lpfc14_loaded)) {
++		symbol_put(lpfc14_loaded);
++		printk(KERN_ERR "Could not load lpfc because lpfc14 is loaded.\n");
++		return -EBUSY;
++	}
++
+ 	error = misc_register(&lpfc_mgmt_dev);
+ 	if (error)
+ 		printk(KERN_ERR "Could not register lpfcmgmt device, "
+-- 
+2.43.0
+
